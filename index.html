@@ -330,130 +330,7 @@
         </div>
     </section>
 
-    <!-- SLIDE 1: OSI Model Interactive -->
-    <section class="slide bg-cyber-dark no-scrollbar" id="slide-1">
-        <div class="w-full max-w-7xl flex flex-col h-full pt-4 md:justify-center">
-            <h2
-                class="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-cyber-neon border-l-4 border-cyber-neon pl-4 shrink-0">
-                Модель OSI
-            </h2>
-
-            <div class="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-6 h-full md:h-[75vh]">
-                <!-- Layer Navigation (Horizontal Scroll on Mobile, Vertical on Desktop) -->
-                <div
-                    class="md:col-span-3 flex md:flex-col-reverse gap-2 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto pb-2 md:pb-0 osi-nav-container shrink-0 no-scrollbar">
-                    <button type="button" data-osi-layer="1" id="osi-btn-1"
-                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
-                        <span class="font-mono font-bold text-sm md:text-lg">1. Физический</span>
-                        <i class="fa-solid fa-network-wired opacity-50 group-hover:opacity-100 hidden md:block"></i>
-                    </button>
-                    <button type="button" data-osi-layer="2" id="osi-btn-2"
-                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
-                        <span class="font-mono font-bold text-sm md:text-lg">2. Канальный</span>
-                        <i class="fa-solid fa-ethernet opacity-50 group-hover:opacity-100 hidden md:block"></i>
-                    </button>
-                    <button type="button" data-osi-layer="3" id="osi-btn-3"
-                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
-                        <span class="font-mono font-bold text-sm md:text-lg">3. Сетевой</span>
-                        <i class="fa-solid fa-globe opacity-50 group-hover:opacity-100 hidden md:block"></i>
-                    </button>
-                    <button type="button" data-osi-layer="4" id="osi-btn-4"
-                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
-                        <span class="font-mono font-bold text-sm md:text-lg">4. Транспортный</span>
-                        <i class="fa-solid fa-truck-fast opacity-50 group-hover:opacity-100 hidden md:block"></i>
-                    </button>
-                    <button type="button" data-osi-layer="5" id="osi-btn-5"
-                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
-                        <span class="font-mono font-bold text-sm md:text-lg">5. Сеансовый</span>
-                        <i class="fa-solid fa-handshake opacity-50 group-hover:opacity-100 hidden md:block"></i>
-                    </button>
-                    <button type="button" data-osi-layer="6" id="osi-btn-6" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all
-                            flex justify-between items-center group min-w-[140px] md:min-w-0 overflow-hidden">
-                        <span
-                            class="font-mono font-bold text-sm md:text-lg leading-tight whitespace-normal break-words">
-                            6. Представительский
-                        </span>
-                        <i class="fa-solid fa-language opacity-50 group-hover:opacity-100 hidden md:block"></i>
-                    </button>
-                    <button type="button" data-osi-layer="7" id="osi-btn-7"
-                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
-                        <span class="font-mono font-bold text-sm md:text-lg">7. Прикладной</span>
-                        <i class="fa-brands fa-chrome opacity-50 group-hover:opacity-100 hidden md:block"></i>
-                    </button>
-                </div>
-
-                <!-- Info Panel -->
-                <div
-                    class="md:col-span-9 bg-cyber-gray border border-white/10 rounded-xl p-4 md:p-6 flex flex-col relative overflow-hidden h-full">
-                    <div class="absolute top-0 right-0 p-4 opacity-10">
-                        <i id="osi-big-icon" class="fa-solid text-6xl md:text-9xl"></i>
-                    </div>
-
-                    <!-- Header -->
-                    <div class="mb-4 md:mb-6 relative z-10 shrink-0">
-                        <div class="flex items-end gap-2 md:gap-4">
-                            <span id="osi-layer-num"
-                                class="text-4xl md:text-5xl font-bold text-cyber-neon font-mono leading-none">L1</span>
-                            <div>
-                                <h3 id="osi-title" class="text-xl md:text-3xl font-bold text-white leading-tight">
-                                    Physical</h3>
-                                <p id="osi-desc" class="text-white mt-1 text-sm md:text-lg text-gray-300">Среда
-                                    передачи.</p>
-                            </div>
-                        </div>
-                        <div class="mt-2 inline-block bg-black/40 px-2 py-1 rounded border border-white/10">
-                            <span class="text-gray-400 font-mono text-xs md:text-sm">Тех: <span id="osi-tech"
-                                    class="text-cyber-blue font-bold">Wi-Fi</span></span>
-                        </div>
-                    </div>
-
-                    <!-- Scrollable Content Area -->
-                    <div class="overflow-y-auto no-scrollbar pr-2 custom-scroll flex-grow min-h-0">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10 pb-4">
-                            <!-- Analogy -->
-                            <div class="osi-card bg-black/30 p-4 rounded-lg border border-white/5 flex flex-col">
-                                <h4
-                                    class="text-cyber-neon font-bold mb-2 flex items-center gap-2 border-b border-white/10 pb-2 text-sm md:text-base">
-                                    <i class="fa-solid fa-envelope"></i> Аналогия (Почта)
-                                </h4>
-                                <p id="osi-analogy" class="text-gray-200 text-sm md:text-lg leading-relaxed">
-                                    Грузовик.
-                                </p>
-                            </div>
-
-                            <!-- Threats -->
-                            <div class="osi-card bg-black/30 p-4 rounded-lg border border-white/5 flex flex-col">
-                                <h4
-                                    class="text-cyber-alert font-bold mb-2 flex items-center gap-2 border-b border-white/10 pb-2 text-sm md:text-base">
-                                    <i class="fa-solid fa-triangle-exclamation"></i> Уязвимости
-                                </h4>
-
-                                <div class="mb-3">
-                                    <p class="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mb-1">
-                                        Аналог угрозы</p>
-                                    <p id="osi-threat-analogy"
-                                        class="text-white text-sm italic bg-cyber-alert/10 p-2 rounded border-l-2 border-cyber-alert">
-                                        Взрыв моста.
-                                    </p>
-                                </div>
-
-                                <div>
-                                    <p class="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mb-1">Атаки
-                                    </p>
-                                    <ul id="osi-threats"
-                                        class="list-disc pl-5 space-y-1 text-gray-300 text-xs md:text-sm">
-                                        <li>Обрыв кабеля</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 
+        <!-- 
   (Routing & BGP)
   ID: slide-routing
 -->
@@ -654,6 +531,129 @@
                 </div>
             </div>
 
+        </div>
+    </section>
+    
+    <!-- SLIDE 1: OSI Model Interactive -->
+    <section class="slide bg-cyber-dark no-scrollbar" id="slide-1">
+        <div class="w-full max-w-7xl flex flex-col h-full pt-4 md:justify-center">
+            <h2
+                class="text-2xl md:text-4xl font-bold mb-4 md:mb-8 text-cyber-neon border-l-4 border-cyber-neon pl-4 shrink-0">
+                Модель OSI
+            </h2>
+
+            <div class="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-6 h-full md:h-[75vh]">
+                <!-- Layer Navigation (Horizontal Scroll on Mobile, Vertical on Desktop) -->
+                <div
+                    class="md:col-span-3 flex md:flex-col-reverse gap-2 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto pb-2 md:pb-0 osi-nav-container shrink-0 no-scrollbar">
+                    <button type="button" data-osi-layer="1" id="osi-btn-1"
+                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                        <span class="font-mono font-bold text-sm md:text-lg">1. Физический</span>
+                        <i class="fa-solid fa-network-wired opacity-50 group-hover:opacity-100 hidden md:block"></i>
+                    </button>
+                    <button type="button" data-osi-layer="2" id="osi-btn-2"
+                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                        <span class="font-mono font-bold text-sm md:text-lg">2. Канальный</span>
+                        <i class="fa-solid fa-ethernet opacity-50 group-hover:opacity-100 hidden md:block"></i>
+                    </button>
+                    <button type="button" data-osi-layer="3" id="osi-btn-3"
+                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                        <span class="font-mono font-bold text-sm md:text-lg">3. Сетевой</span>
+                        <i class="fa-solid fa-globe opacity-50 group-hover:opacity-100 hidden md:block"></i>
+                    </button>
+                    <button type="button" data-osi-layer="4" id="osi-btn-4"
+                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                        <span class="font-mono font-bold text-sm md:text-lg">4. Транспортный</span>
+                        <i class="fa-solid fa-truck-fast opacity-50 group-hover:opacity-100 hidden md:block"></i>
+                    </button>
+                    <button type="button" data-osi-layer="5" id="osi-btn-5"
+                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                        <span class="font-mono font-bold text-sm md:text-lg">5. Сеансовый</span>
+                        <i class="fa-solid fa-handshake opacity-50 group-hover:opacity-100 hidden md:block"></i>
+                    </button>
+                    <button type="button" data-osi-layer="6" id="osi-btn-6" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all
+                            flex justify-between items-center group min-w-[140px] md:min-w-0 overflow-hidden">
+                        <span
+                            class="font-mono font-bold text-sm md:text-lg leading-tight whitespace-normal break-words">
+                            6. Представительский
+                        </span>
+                        <i class="fa-solid fa-language opacity-50 group-hover:opacity-100 hidden md:block"></i>
+                    </button>
+                    <button type="button" data-osi-layer="7" id="osi-btn-7"
+                        class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                        <span class="font-mono font-bold text-sm md:text-lg">7. Прикладной</span>
+                        <i class="fa-brands fa-chrome opacity-50 group-hover:opacity-100 hidden md:block"></i>
+                    </button>
+                </div>
+
+                <!-- Info Panel -->
+                <div
+                    class="md:col-span-9 bg-cyber-gray border border-white/10 rounded-xl p-4 md:p-6 flex flex-col relative overflow-hidden h-full">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i id="osi-big-icon" class="fa-solid text-6xl md:text-9xl"></i>
+                    </div>
+
+                    <!-- Header -->
+                    <div class="mb-4 md:mb-6 relative z-10 shrink-0">
+                        <div class="flex items-end gap-2 md:gap-4">
+                            <span id="osi-layer-num"
+                                class="text-4xl md:text-5xl font-bold text-cyber-neon font-mono leading-none">L1</span>
+                            <div>
+                                <h3 id="osi-title" class="text-xl md:text-3xl font-bold text-white leading-tight">
+                                    Physical</h3>
+                                <p id="osi-desc" class="text-white mt-1 text-sm md:text-lg text-gray-300">Среда
+                                    передачи.</p>
+                            </div>
+                        </div>
+                        <div class="mt-2 inline-block bg-black/40 px-2 py-1 rounded border border-white/10">
+                            <span class="text-gray-400 font-mono text-xs md:text-sm">Тех: <span id="osi-tech"
+                                    class="text-cyber-blue font-bold">Wi-Fi</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Scrollable Content Area -->
+                    <div class="overflow-y-auto no-scrollbar pr-2 custom-scroll flex-grow min-h-0">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10 pb-4">
+                            <!-- Analogy -->
+                            <div class="osi-card bg-black/30 p-4 rounded-lg border border-white/5 flex flex-col">
+                                <h4
+                                    class="text-cyber-neon font-bold mb-2 flex items-center gap-2 border-b border-white/10 pb-2 text-sm md:text-base">
+                                    <i class="fa-solid fa-envelope"></i> Аналогия (Почта)
+                                </h4>
+                                <p id="osi-analogy" class="text-gray-200 text-sm md:text-lg leading-relaxed">
+                                    Грузовик.
+                                </p>
+                            </div>
+
+                            <!-- Threats -->
+                            <div class="osi-card bg-black/30 p-4 rounded-lg border border-white/5 flex flex-col">
+                                <h4
+                                    class="text-cyber-alert font-bold mb-2 flex items-center gap-2 border-b border-white/10 pb-2 text-sm md:text-base">
+                                    <i class="fa-solid fa-triangle-exclamation"></i> Уязвимости
+                                </h4>
+
+                                <div class="mb-3">
+                                    <p class="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mb-1">
+                                        Аналог угрозы</p>
+                                    <p id="osi-threat-analogy"
+                                        class="text-white text-sm italic bg-cyber-alert/10 p-2 rounded border-l-2 border-cyber-alert">
+                                        Взрыв моста.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p class="text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mb-1">Атаки
+                                    </p>
+                                    <ul id="osi-threats"
+                                        class="list-disc pl-5 space-y-1 text-gray-300 text-xs md:text-sm">
+                                        <li>Обрыв кабеля</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
