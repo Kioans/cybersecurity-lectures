@@ -391,7 +391,742 @@
         </div>
     </section>
 
-    <!-- SLIDE 3: SORM & Censorship -->
+    <!-- SLIDE 3: MitM -->
+    <section class="slide bg-cyber-dark no-scrollbar" id="slide-5">
+  <div class="w-full max-w-6xl pt-8 pb-16">
+    <h2 class="text-2xl md:text-4xl font-bold mb-6 text-cyber-alert border-l-4 border-cyber-alert pl-4">
+      MitM, HTTP/HTTPS и сертификаты: где ломается “доверие”
+    </h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- LEFT: HTTP vs HTTPS + keys -->
+      <div class="lg:col-span-5 space-y-4">
+        <!-- HTTP -->
+        <div class="bg-cyber-gray p-5 rounded-xl border border-white/10">
+          <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-lock-open text-cyber-alert text-xl"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="tag">HTTP</span>
+                <span class="text-white font-bold text-base md:text-lg">Открытый текст</span>
+              </div>
+              <p class="text-sm text-gray-300 mt-1 leading-relaxed">
+                Любой, кто “стоит на пути” (Wi-Fi/провайдер/роутер), видит запросы и ответы.
+              </p>
+              <div class="mt-3 bg-black/40 border border-white/10 rounded-lg p-3">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest">пример</div>
+                <div class="font-mono text-xs md:text-sm text-gray-200 break-words">
+                  GET /login?user=ivan&amp;pass=...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTTPS / TLS -->
+        <div class="bg-cyber-gray p-5 rounded-xl border border-white/10">
+          <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-cyber-neon/20 border border-cyber-neon/30 flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-shield-halved text-cyber-neon text-xl"></i>
+            </div>
+            <div class="min-w-0 w-full">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="tag">HTTPS (TLS)</span>
+                <span class="text-white font-bold text-base md:text-lg">Шифрование + проверка сервера</span>
+              </div>
+
+              <!-- Mini flow -->
+              <div class="mt-3 space-y-2">
+                <div class="flex items-center gap-3">
+                  <span class="tag">1</span>
+                  <span class="text-sm text-gray-300">Сервер даёт сертификат (публичный ключ + подпись CA)</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="tag">2</span>
+                  <span class="text-sm text-gray-300">Браузер проверяет цепочку доверия (CA → сертификат)</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="tag">3</span>
+                  <span class="text-sm text-gray-300">Стороны договариваются о сеансовом ключе</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="tag">4</span>
+                  <span class="text-sm text-gray-300">Дальше всё шифруется симметрично (быстро)</span>
+                </div>
+              </div>
+
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="bg-black/40 border border-white/10 rounded-lg p-3">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-key text-gray-400"></i>
+                    <div class="text-white font-bold text-sm">Публичный ключ</div>
+                  </div>
+                  <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+                    В сертификате. Нужен, чтобы подтвердить “это правда сервер”.
+                  </p>
+                </div>
+                <div class="bg-black/40 border border-white/10 rounded-lg p-3">
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-user-secret text-gray-400"></i>
+                    <div class="text-white font-bold text-sm">Приватный ключ</div>
+                  </div>
+                  <p class="text-xs text-gray-300 mt-1 leading-relaxed">
+                    Хранится у сервера. Никогда не должен “утечь”.
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-4 flex items-center gap-3">
+                <div class="flex-1"><div class="flowline"></div></div>
+                <span class="tag"><i class="fa-solid fa-lock"></i> дальше трафик шифрован</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: MITM with trusted root -->
+      <div class="lg:col-span-7 bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 relative overflow-hidden">
+        <!-- glow -->
+        <div class="absolute inset-0 opacity-15 pointer-events-none">
+          <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-cyber-purple blur-3xl"></div>
+          <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-cyber-alert blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-cyber-alert flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(255,107,107,0.35)]">
+              <i class="fa-solid fa-triangle-exclamation text-black text-xl"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-white font-bold text-base md:text-lg leading-tight">
+                MitM в HTTPS становится возможен, если вы доверили устройству “новый корень”
+              </div>
+              <p class="text-sm text-gray-300 mt-1 leading-relaxed">
+                Например, когда сертификат добавлен в <strong>доверенные корневые</strong> (ОС/браузера) — через установщик/браузер/политику.
+              </p>
+            </div>
+          </div>
+
+          <!-- Conditions -->
+          <div class="bg-black/40 border border-white/10 rounded-xl p-4">
+            <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-2">нужно 3 условия</div>
+            <div class="flex flex-wrap gap-2">
+              <span class="tag"><i class="fa-solid fa-certificate"></i> доверенный Root CA</span>
+              <span class="tag"><i class="fa-solid fa-route"></i> перехватчик “на пути”</span>
+              <span class="tag"><i class="fa-solid fa-thumbtack"></i> нет pinning</span>
+            </div>
+          </div>
+
+          <!-- Steps: vertical -->
+          <div class="space-y-3">
+            <!-- Step 1 -->
+            <div class="bg-cyber-gray/70 border border-white/10 rounded-xl p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                  <span class="tag">1</span>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-white font-bold text-sm md:text-base">
+                    Корневой сертификат добавлен в доверенные
+                  </div>
+                  <p class="text-xs md:text-sm text-gray-300 mt-1 leading-relaxed">
+                    Теперь устройство верит сертификатам, которые “порождает” этот центр сертификации.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 shrink-0 flex justify-center text-gray-500"><i class="fa-solid fa-arrow-down"></i></div>
+              <div class="flex-1"><div class="flowline"></div></div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-cyber-gray/70 border border-white/10 rounded-xl p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                  <span class="tag">2</span>
+                </div>
+                <div class="min-w-0 w-full">
+                  <div class="text-white font-bold text-sm md:text-base">
+                    Перехватчик показывает “правильный” сертификат для любого сайта
+                  </div>
+                  <p class="text-xs md:text-sm text-gray-300 mt-1 leading-relaxed">
+                    Браузер видит: подпись валидна (цепочка доверия сходится) — значит “сервер настоящий”.
+                  </p>
+
+                  <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 items-stretch">
+                    <div class="bg-black/40 border border-white/10 rounded-lg p-3">
+                      <div class="text-[10px] text-gray-500 uppercase tracking-widest">пользователь</div>
+                      <div class="flex items-center gap-2 mt-1">
+                        <i class="fa-brands fa-chrome text-gray-300"></i>
+                        <span class="text-sm text-white font-bold">Браузер</span>
+                      </div>
+                    </div>
+                    <div class="bg-black/40 border border-cyber-alert/40 rounded-lg p-3">
+                      <div class="text-[10px] text-gray-500 uppercase tracking-widest">на пути</div>
+                      <div class="flex items-center gap-2 mt-1">
+                        <i class="fa-solid fa-spider text-cyber-alert"></i>
+                        <span class="text-sm text-white font-bold">MitM-прокси</span>
+                      </div>
+                    </div>
+                    <div class="bg-black/40 border border-white/10 rounded-lg p-3">
+                      <div class="text-[10px] text-gray-500 uppercase tracking-widest">сайт</div>
+                      <div class="flex items-center gap-2 mt-1">
+                        <i class="fa-solid fa-building-columns text-gray-300"></i>
+                        <span class="text-sm text-white font-bold">bank.com</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-3 bg-black/40 border border-white/10 rounded-lg p-3">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="tag"><i class="fa-solid fa-stamp"></i> “bank.com” cert</span>
+                      <span class="text-[10px] font-mono text-gray-400">подписан Root CA</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 shrink-0 flex justify-center text-gray-500"><i class="fa-solid fa-arrow-down"></i></div>
+              <div class="flex-1"><div class="flowline"></div></div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-cyber-gray/70 border border-white/10 rounded-xl p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                  <span class="tag">3</span>
+                </div>
+                <div class="min-w-0 w-full">
+                  <div class="text-white font-bold text-sm md:text-base">
+                    Трафик расшифровывается внутри прокси и шифруется снова
+                  </div>
+                  <p class="text-xs md:text-sm text-gray-300 mt-1 leading-relaxed">
+                    С точки зрения браузера “всё зелёное”, но фактически вы общаетесь с прокси, а не напрямую с сайтом.
+                  </p>
+
+                  <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="bg-black/40 border border-white/10 rounded-lg p-3">
+                      <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-lock-open text-cyber-neon"></i>
+                        <div class="text-white font-bold text-sm">Внутри прокси</div>
+                      </div>
+                      <div class="font-mono text-xs md:text-sm text-cyber-neon mt-2 break-words">
+                        "платёж: 1000 ₽"
+                      </div>
+                    </div>
+                    <div class="bg-black/40 border border-white/10 rounded-lg p-3">
+                      <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-gray-300"></i>
+                        <div class="text-white font-bold text-sm">Снаружи (в сеть)</div>
+                      </div>
+                      <div class="font-mono text-xs md:text-sm text-gray-300 mt-2 break-words">
+                        8A1F...C92B...
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Why "гос-во" -->
+          <div class="bg-black/40 border border-cyber-alert/30 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+              <i class="fa-solid fa-landmark text-cyber-alert mt-0.5"></i>
+              <div class="min-w-0">
+                <div class="text-white font-bold text-sm md:text-base">Почему это может дать доступ “на уровне государства”</div>
+                <p class="text-xs md:text-sm text-gray-300 mt-1 leading-relaxed">
+                  Если корневой CA контролируется/управляется госструктурой и перехватчик стоит на магистрали (например, у оператора),
+                  то технически можно выпускать “доверенные” сертификаты и читать HTTPS-трафик на участке перехвата.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Protections -->
+          <div class="bg-cyber-gray/40 border border-white/10 rounded-xl p-4">
+            <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-2">что усложняет MitM</div>
+            <div class="flex flex-wrap gap-2">
+              <span class="tag">HSTS</span>
+              <span class="tag">Certificate Pinning</span>
+              <span class="tag">отдельный профиль/устройство</span>
+              <span class="tag">не ставить Root CA “в систему”</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- DNS -->
+<section class="slide bg-cyber-dark no-scrollbar" id="slide-6"> <div class="w-full max-w-6xl pt-8 pb-16"> <h2 class="text-2xl md:text-4xl font-bold mb-6 text-cyber-neon border-l-4 border-cyber-neon pl-4"> DNS: как работает и что видит провайдер </h2>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- LEFT: коротко и понятно -->
+    <div class="lg:col-span-4 space-y-4">
+        <div class="bg-cyber-gray p-5 rounded-xl border border-white/10">
+        <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-cyber-neon/15 border border-cyber-neon/30 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-book-atlas text-cyber-neon text-xl"></i>
+            </div>
+            <div class="min-w-0">
+            <div class="text-white font-bold text-lg leading-tight">DNS = “телефонная книга” интернета</div>
+            <p class="text-sm text-gray-300 mt-2 leading-relaxed">
+                Переводит <strong>имя сайта</strong> (example.com) в <strong>IP-адрес</strong> (куда подключаться).
+            </p>
+            </div>
+        </div>
+        </div>
+
+        <div class="bg-black/30 p-5 rounded-xl border border-white/10">
+        <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-tower-broadcast text-gray-200 text-xl"></i>
+            </div>
+            <div class="min-w-0">
+            <div class="text-white font-bold text-base">DNS провайдера (ISP DNS)</div>
+            <p class="text-sm text-gray-300 mt-2 leading-relaxed">
+                Обычно ваш компьютер спрашивает <strong>DNS-резолвер провайдера</strong>. Он может отвечать из кэша или “дозваниваться” дальше.
+            </p>
+            </div>
+        </div>
+        </div>
+
+        <div class="bg-cyber-gray p-5 rounded-xl border border-white/10">
+        <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-cyber-alert/20 border border-cyber-alert/30 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-eye text-cyber-alert text-xl"></i>
+            </div>
+            <div class="min-w-0">
+            <div class="text-white font-bold text-base">Главная мысль</div>
+            <p class="text-sm text-gray-300 mt-2 leading-relaxed">
+                Если DNS не шифрован, провайдер <strong>видит домены</strong>, которые вы запрашиваете (и когда).
+            </p>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: инфографика (mobile-first вертикально) -->
+    <div class="lg:col-span-8 bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 relative overflow-hidden">
+        <!-- glow -->
+        <div class="absolute inset-0 opacity-15 pointer-events-none">
+        <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-cyber-purple blur-3xl"></div>
+        <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-cyber-blue blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 space-y-4">
+        <!-- STEP 1 -->
+        <div class="bg-black/35 border border-white/10 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <span class="tag">1</span>
+            </div>
+            <div class="min-w-0 w-full">
+                <div class="flex items-center gap-2 flex-wrap">
+                <i class="fa-solid fa-laptop text-gray-300"></i>
+                <div class="text-white font-bold">Ваше устройство</div>
+                <span class="tag">“Где google.com?”</span>
+                </div>
+                <div class="mt-2 bg-black/40 border border-white/10 rounded-lg p-3">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">DNS запрос</div>
+                <div class="font-mono text-xs md:text-sm text-gray-200 break-words">
+                    По какому IP адресу находится google.com ?
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="w-10 shrink-0 flex justify-center text-gray-500"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="flex-1"><div class="flowline"></div></div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="bg-cyber-gray/60 border border-white/10 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-cyber-neon/15 border border-cyber-neon/30 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-building-wheat text-cyber-neon text-xl"></i>
+            </div>
+            <div class="min-w-0 w-full">
+                <div class="flex items-center gap-2 flex-wrap">
+                <span class="tag">2</span>
+                <div class="text-white font-bold">DNS-резолвер провайдера</div>
+                <span class="tag">кэш / рекурсия</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+                <div class="bg-black/35 border border-white/10 rounded-lg p-3">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest">root</div>
+                    <div class="text-sm text-gray-200 font-bold">.</div>
+                </div>
+                <div class="bg-black/35 border border-white/10 rounded-lg p-3">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest">tld</div>
+                    <div class="text-sm text-gray-200 font-bold">.com</div>
+                </div>
+                <div class="bg-black/35 border border-white/10 rounded-lg p-3">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest">authoritative</div>
+                    <div class="text-sm text-gray-200 font-bold">google.com</div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="w-10 shrink-0 flex justify-center text-gray-500"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="flex-1"><div class="flowline"></div></div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="bg-black/35 border border-white/10 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <span class="tag">3</span>
+            </div>
+            <div class="min-w-0 w-full">
+                <div class="flex items-center gap-2 flex-wrap">
+                <i class="fa-solid fa-reply text-gray-300"></i>
+                <div class="text-white font-bold">Ответ DNS</div>
+                <span class="tag">IP адрес</span>
+                </div>
+                <div class="mt-2 bg-black/40 border border-white/10 rounded-lg p-3">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">DNS ответ</div>
+                <div class="font-mono text-xs md:text-sm text-gray-200 break-words">
+                    google.com → 142.250.x.x
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="w-10 shrink-0 flex justify-center text-gray-500"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="flex-1"><div class="flowline"></div></div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="bg-cyber-blue/10 border border-cyber-blue/30 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg bg-cyber-blue/20 border border-cyber-blue/30 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-lock text-cyber-blue text-xl"></i>
+            </div>
+            <div class="min-w-0 w-full">
+                <div class="flex items-center gap-2 flex-wrap">
+                <span class="tag">4</span>
+                <div class="text-white font-bold">Подключение к сайту (HTTPS)</div>
+                <span class="tag">контент шифрован</span>
+                </div>
+                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">провайдер видит</div>
+                    <div class="text-sm text-gray-200">IP сервера + факт соединения</div>
+                </div>
+                <div class="bg-black/40 border border-white/10 rounded-lg p-3">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">провайдер НЕ видит</div>
+                    <div class="text-sm text-gray-200">страницы/пароли/поисковую фразу</div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- WHAT ISP SEES -->
+        <div class="bg-black/40 border border-white/10 rounded-xl p-4">
+            <div class="text-white font-bold mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-eye text-cyber-alert"></i>
+            Что провайдер видит на практике
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="bg-black/35 border border-white/10 rounded-lg p-3">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">DNS (если обычный)</div>
+                <div class="text-sm text-gray-200">Домены, которые вы запрашиваете</div>
+                <div class="text-xs text-gray-400 mt-1">пример: google.com, youtube.com, bank.com</div>
+            </div>
+            <div class="bg-black/35 border border-white/10 rounded-lg p-3">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">HTTPS</div>
+                <div class="text-sm text-gray-200">IP + время + объём трафика</div>
+                <div class="text-xs text-gray-400 mt-1">но не содержимое страниц</div>
+            </div>
+            <div class="bg-black/35 border border-white/10 rounded-lg p-3">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">когда вы “гуглите”</div>
+                <div class="text-sm text-gray-200">Факт: вы на google.com</div>
+                <div class="text-xs text-gray-400 mt-1">сама фраза обычно скрыта HTTPS</div>
+            </div>
+            <div class="bg-black/35 border border-white/10 rounded-lg p-3">
+                <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">что может делать ISP DNS</div>
+                <div class="text-sm text-gray-200">Блок/подмена ответа/редирект</div>
+                <div class="text-xs text-gray-400 mt-1">через DNS-ответ</div>
+            </div>
+            </div>
+        </div>
+
+        <!-- MINI: privacy tip -->
+        <div class="bg-cyber-gray/40 border border-white/10 rounded-xl p-4">
+            <div class="text-white font-bold mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-cyber-neon"></i>
+            Как снизить “видимость” доменов
+            </div>
+            <div class="flex flex-wrap gap-2">
+            <span class="tag">DoT / DoH</span>
+            <span class="tag">другой DNS-резолвер</span>
+            <span class="tag">VPN</span>
+            </div>
+        </div>
+
+        <!-- Sources as a comment (keeps section-only format) -->
+        <!-- Sources: Cloudflare DNS overview & ISP recursive resolver role: :contentReference[oaicite:0]{index=0} ; DNS-over-TLS privacy (IETF RFC 7858): :contentReference[oaicite:1]{index=1} -->
+        </div>
+    </div>
+    </div>
+</section>
+
+<section class="slide bg-cyber-dark no-scrollbar" id="slide-6">
+  <div class="w-full max-w-6xl pt-8 pb-16">
+    <h2 class="text-2xl md:text-4xl font-bold mb-6 text-cyber-neon border-l-4 border-cyber-neon pl-4">
+      DNS: “имя сайта” → “IP адрес”
+    </h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- LEFT: супер-наглядная схема -->
+      <div class="lg:col-span-7 bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 relative overflow-hidden">
+        <!-- glow -->
+        <div class="absolute inset-0 opacity-15 pointer-events-none">
+          <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-cyber-purple blur-3xl"></div>
+          <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-cyber-blue blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 space-y-4 max-w-2xl mx-auto lg:max-w-none">
+          <!-- STEP 1 -->
+          <div class="bg-black/35 border border-white/10 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-laptop text-2xl text-gray-200"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/40 border border-white/10 text-gray-300">1</span>
+                  <span class="text-white font-bold text-base">Вы вводите сайт</span>
+                </div>
+                <div class="mt-2 font-mono text-sm text-gray-200 break-words">google.com</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ARROW -->
+          <div class="flex items-center gap-3 px-1">
+            <div class="w-10 shrink-0 flex justify-center text-gray-500"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="flex-1 h-1 bg-white/10 rounded-full overflow-hidden relative">
+              <div class="absolute inset-0 bg-cyber-neon/30 animate-pulse"></div>
+            </div>
+          </div>
+
+          <!-- STEP 2 -->
+          <div class="bg-cyber-gray/60 border border-white/10 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-cyber-neon/15 border border-cyber-neon/30 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-tower-broadcast text-2xl text-cyber-neon"></i>
+              </div>
+              <div class="min-w-0 w-full">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/40 border border-white/10 text-gray-300">2</span>
+                  <span class="text-white font-bold text-base">DNS провайдера</span>
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/40 border border-white/10 text-gray-300">“какой IP?”</span>
+                </div>
+
+                <div class="mt-3 rounded-lg border border-white/10 bg-black/35 p-3">
+                  <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">DNS запрос</div>
+                  <div class="font-mono text-xs md:text-sm text-gray-200 break-words">По какому IP адресу находится google.com ?</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ARROW -->
+          <div class="flex items-center gap-3 px-1">
+            <div class="w-10 shrink-0 flex justify-center text-gray-500"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="flex-1 h-1 bg-white/10 rounded-full overflow-hidden relative">
+              <div class="absolute inset-0 bg-cyber-neon/30 animate-pulse"></div>
+            </div>
+          </div>
+
+          <!-- STEP 3: DNS hierarchy (mostly icons) -->
+          <div class="bg-black/35 border border-white/10 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-sitemap text-2xl text-gray-200"></i>
+              </div>
+              <div class="min-w-0 w-full">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/40 border border-white/10 text-gray-300">3</span>
+                  <span class="text-white font-bold text-base">“Спрашивает дальше”</span>
+                </div>
+
+                <div class="mt-3 grid grid-cols-3 gap-2">
+                  <div class="rounded-lg border border-white/10 bg-black/35 p-3 text-center">
+                    <div class="text-2xl text-gray-200"><i class="fa-solid fa-globe"></i></div>
+                    <div class="text-[10px] font-mono text-gray-400 mt-1">ROOT</div>
+                  </div>
+                  <div class="rounded-lg border border-white/10 bg-black/35 p-3 text-center">
+                    <div class="text-2xl text-gray-200"><i class="fa-solid fa-circle-nodes"></i></div>
+                    <div class="text-[10px] font-mono text-gray-400 mt-1">.COM</div>
+                  </div>
+                  <div class="rounded-lg border border-white/10 bg-black/35 p-3 text-center">
+                    <div class="text-2xl text-gray-200"><i class="fa-solid fa-building-columns"></i></div>
+                    <div class="text-[10px] font-mono text-gray-400 mt-1">google.com</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ARROW -->
+          <div class="flex items-center gap-3 px-1">
+            <div class="w-10 shrink-0 flex justify-center text-gray-500"><i class="fa-solid fa-arrow-down"></i></div>
+            <div class="flex-1 h-1 bg-white/10 rounded-full overflow-hidden relative">
+              <div class="absolute inset-0 bg-cyber-neon/30 animate-pulse"></div>
+            </div>
+          </div>
+
+          <!-- STEP 4: Answer + HTTPS -->
+          <div class="bg-cyber-blue/10 border border-cyber-blue/30 rounded-xl p-4">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-cyber-blue/20 border border-cyber-blue/30 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-lock text-2xl text-cyber-blue"></i>
+              </div>
+              <div class="min-w-0 w-full">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-black/40 border border-white/10 text-gray-300">4</span>
+                  <span class="text-white font-bold text-base">Ответ: IP → HTTPS</span>
+                </div>
+
+                <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div class="rounded-lg border border-white/10 bg-black/35 p-3">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">DNS ответ</div>
+                    <div class="font-mono text-xs md:text-sm text-gray-200 break-words">google.com → 142.250.x.x</div>
+                  </div>
+                  <div class="rounded-lg border border-white/10 bg-black/35 p-3">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Дальше</div>
+                    <div class="text-sm text-gray-200 flex items-center gap-2">
+                      <i class="fa-solid fa-shield-halved text-cyber-blue"></i>
+                      <span>контент шифрован</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Tiny: privacy shortcut (icon-only-ish) -->
+          <div class="flex flex-wrap gap-2 pt-1">
+            <span class="text-[10px] font-mono px-2 py-1 rounded-full bg-black/40 border border-white/10 text-gray-300">
+              <i class="fa-solid fa-lock mr-1"></i> DoH/DoT шифруют DNS
+            </span>
+            <span class="text-[10px] font-mono px-2 py-1 rounded-full bg-black/40 border border-white/10 text-gray-300">
+              <i class="fa-solid fa-network-wired mr-1"></i> VPN прячет домены от ISP DNS
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: what ISP sees (almost no text) -->
+      <div class="lg:col-span-5 space-y-4">
+        <div class="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6">
+          <div class="flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-eye text-cyber-alert text-xl"></i>
+            <div class="text-white font-bold text-lg">Что видит провайдер</div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <!-- sees -->
+            <div class="rounded-xl border border-cyber-neon/30 bg-cyber-neon/10 p-4">
+              <div class="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-check text-cyber-neon"></i> Видит
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-globe text-cyber-neon"></i>
+                  <span class="text-sm text-gray-200">домены (DNS)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-location-dot text-cyber-neon"></i>
+                  <span class="text-sm text-gray-200">IP сервера</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-clock text-cyber-neon"></i>
+                  <span class="text-sm text-gray-200">время</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-database text-cyber-neon"></i>
+                  <span class="text-sm text-gray-200">объём</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- does not see -->
+            <div class="rounded-xl border border-white/10 bg-black/35 p-4">
+              <div class="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-xmark text-gray-400"></i> Не видит (HTTPS)
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-file-lines text-gray-400"></i>
+                  <span class="text-sm text-gray-200">страницы</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+                  <span class="text-sm text-gray-200">текст поиска</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-key text-gray-400"></i>
+                  <span class="text-sm text-gray-200">пароли</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-image text-gray-400"></i>
+                  <span class="text-sm text-gray-200">контент</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Extra visual hint: DNS tampering -->
+        <div class="bg-black/50 border border-white/10 rounded-xl p-5 md:p-6">
+          <div class="flex items-center gap-2 mb-3">
+            <i class="fa-solid fa-wand-magic-sparkles text-cyber-alert"></i>
+            <div class="text-white font-bold text-lg">DNS можно “подменить”</div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="rounded-lg border border-white/10 bg-black/35 p-3 text-center">
+              <i class="fa-solid fa-ban text-cyber-alert text-2xl"></i>
+              <div class="text-[10px] font-mono text-gray-400 mt-1">block</div>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-black/35 p-3 text-center">
+              <i class="fa-solid fa-shuffle text-cyber-alert text-2xl"></i>
+              <div class="text-[10px] font-mono text-gray-400 mt-1">redirect</div>
+            </div>
+            <div class="rounded-lg border border-white/10 bg-black/35 p-3 text-center">
+              <i class="fa-solid fa-triangle-exclamation text-cyber-alert text-2xl"></i>
+              <div class="text-[10px] font-mono text-gray-400 mt-1">spoof</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+    <!-- SLIDE 4: SORM & Censorship -->
     <section class="slide bg-cyber-dark no-scrollbar" id="slide-3">
         <div class="w-full max-w-6xl pt-8 pb-16">
             <h2 class="text-2xl md:text-4xl font-bold mb-6 text-cyber-neon border-l-4 border-cyber-neon pl-4">Госслежка (СОРМ)</h2>
@@ -438,7 +1173,7 @@
         </div>
     </section>
 
-<!-- SLIDE 4: Malware + TLS MITM + MTProto (mobile-first infographic) -->
+<!-- SLIDE 5: Malware + TLS MITM + MTProto (mobile-first infographic) -->
 <section class="slide bg-cyber-dark no-scrollbar" id="slide-4">
 <div class="w-full max-w-6xl pt-8 pb-16">
     <h2 class="text-2xl md:text-4xl font-bold mb-6 text-cyber-alert border-l-4 border-cyber-alert pl-4">
@@ -649,7 +1384,7 @@
 
 
 
-    <!-- SLIDE 5: Digital Hygiene & Conclusion -->
+    <!-- SLIDE 6: Digital Hygiene & Conclusion -->
     <section class="slide bg-cyber-dark no-scrollbar" id="slide-5">
         <div class="w-full max-w-5xl pt-8 pb-16">
             <h2 class="text-2xl md:text-4xl font-bold mb-6 text-cyber-neon border-l-4 border-cyber-neon pl-4">Цифровая Гигиена</h2>
