@@ -102,6 +102,16 @@
 </head>
 <body class="bg-cyber-black text-cyber-light font-sans selection:bg-cyber-neon selection:text-cyber-black">
 
+    <!-- Navigation Overlay (Bottom Right) -->
+    <div class="fixed bottom-8 right-8 z-50 flex gap-4">
+        <button onclick="changeSlide(-1)" class="nav-btn w-12 h-12 rounded-full border border-cyber-neon/30 text-cyber-neon flex items-center justify-center hover:scale-110" title="Вверх/Назад">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+        <button onclick="changeSlide(1)" class="nav-btn w-12 h-12 rounded-full border border-cyber-neon/30 text-cyber-neon flex items-center justify-center hover:scale-110" title="Вниз/Далее">
+            <i class="fa-solid fa-arrow-down"></i>
+        </button>
+    </div>
+
     <!-- Progress Bar (Top) -->
     <div class="fixed top-0 left-0 w-full h-1 bg-cyber-gray z-50">
         <div id="progress-bar" class="h-full bg-cyber-neon transition-all duration-300" style="width: 0%"></div>
@@ -623,4 +633,5 @@
         });
     </script>
 </body>
+
 </html>
