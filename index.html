@@ -42,19 +42,30 @@
 
     <style>
         /* Base Reset */
-        body { 
-            background-color: #050505; 
-            color: #e0e0e0; 
-            overflow: hidden; /* Prevent body scroll, handle per slide */
-            touch-action: pan-y; /* Allow vertical scroll/swipe */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #050505;
+            overscroll-behavior: none;
         }
 
-        /* Hide Scrollbar but allow scroll */
+        body {
+            background-color: #050505;
+            color: #e0e0e0;
+            overflow: hidden; /* Prevent document scroll; scroll inside slides */
+            touch-action: pan-y; /* Allow vertical scroll/swipe */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+/* Hide Scrollbar but allow scroll */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .slide {
-            height: 100vh;
+            height: 100dvh;
             width: 100vw;
             position: absolute;
             top: 0;
@@ -73,7 +84,11 @@
             overflow-x: hidden;
         }
 
-        /* Desktop centering adjustment */
+        
+        @supports not (height: 100dvh) {
+            .slide { height: 100vh; }
+        }
+/* Desktop centering adjustment */
         @media (min-width: 768px) {
             .slide {
                 justify-content: center;
@@ -121,16 +136,50 @@
         .osi-nav-container {
             -webkit-overflow-scrolling: touch;
         }
+
+        /* Infographic helpers (Slide 4) */
+        .flowline {
+            height: 3px;
+            border-radius: 999px;
+            background: rgba(255,255,255,.10);
+            position: relative;
+            overflow: hidden;
+        }
+        .flowline::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(34,211,238,.45), transparent);
+            transform: translateX(-60%);
+            animation: flowMove 1.8s linear infinite;
+        }
+        @keyframes flowMove { to { transform: translateX(60%); } }
+
+        .tag {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,.10);
+            background: rgba(0,0,0,.45);
+            color: rgba(255,255,255,.65);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+
     </style>
 </head>
 <body class="bg-cyber-black text-cyber-light font-sans selection:bg-cyber-neon selection:text-cyber-black">
 
     <!-- Navigation Overlay (Fixed) -->
     <div class="fixed bottom-4 right-4 z-50 flex gap-3 md:bottom-8 md:right-8 md:gap-4">
-        <button onclick="changeSlide(-1)" class="nav-btn w-10 h-10 md:w-12 md:h-12 rounded-full border border-cyber-neon/30 text-cyber-neon flex items-center justify-center active:scale-95 md:hover:scale-110 bg-black/50" title="Вверх/Назад">
+        <button type="button" data-slide-dir="-1" class="nav-btn w-10 h-10 md:w-12 md:h-12 rounded-full border border-cyber-neon/30 text-cyber-neon flex items-center justify-center active:scale-95 md:hover:scale-110 bg-black/50" title="Вверх/Назад">
             <i class="fa-solid fa-arrow-up"></i>
         </button>
-        <button onclick="changeSlide(1)" class="nav-btn w-10 h-10 md:w-12 md:h-12 rounded-full border border-cyber-neon/30 text-cyber-neon flex items-center justify-center active:scale-95 md:hover:scale-110 bg-black/50" title="Вниз/Далее">
+        <button type="button" data-slide-dir="1" class="nav-btn w-10 h-10 md:w-12 md:h-12 rounded-full border border-cyber-neon/30 text-cyber-neon flex items-center justify-center active:scale-95 md:hover:scale-110 bg-black/50" title="Вниз/Далее">
             <i class="fa-solid fa-arrow-down"></i>
         </button>
     </div>
@@ -141,7 +190,7 @@
     </div>
 
     <!-- Slide Number Indicator -->
-    <div class="slide-number z-50"><span id="current-slide-num">00</span> / 04</div>
+    <div class="slide-number z-50"><span id="current-slide-num">01</span> / <span id="total-slide-num">00</span></div>
 
     <!-- ================= SLIDES ================= -->
 
@@ -189,31 +238,35 @@
             <div class="flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-6 h-full md:h-[75vh]">
                 <!-- Layer Navigation (Horizontal Scroll on Mobile, Vertical on Desktop) -->
                 <div class="md:col-span-3 flex md:flex-col-reverse gap-2 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto pb-2 md:pb-0 osi-nav-container shrink-0 no-scrollbar">
-                    <button onclick="setOsiLayer(1)" id="osi-btn-1" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                    <button type="button" data-osi-layer="1" id="osi-btn-1" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
                         <span class="font-mono font-bold text-sm md:text-lg">1. Физический</span>
                         <i class="fa-solid fa-network-wired opacity-50 group-hover:opacity-100 hidden md:block"></i>
                     </button>
-                    <button onclick="setOsiLayer(2)" id="osi-btn-2" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                    <button type="button" data-osi-layer="2" id="osi-btn-2" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
                         <span class="font-mono font-bold text-sm md:text-lg">2. Канальный</span>
                         <i class="fa-solid fa-ethernet opacity-50 group-hover:opacity-100 hidden md:block"></i>
                     </button>
-                    <button onclick="setOsiLayer(3)" id="osi-btn-3" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                    <button type="button" data-osi-layer="3" id="osi-btn-3" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
                         <span class="font-mono font-bold text-sm md:text-lg">3. Сетевой</span>
                         <i class="fa-solid fa-globe opacity-50 group-hover:opacity-100 hidden md:block"></i>
                     </button>
-                    <button onclick="setOsiLayer(4)" id="osi-btn-4" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                    <button type="button" data-osi-layer="4" id="osi-btn-4" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
                         <span class="font-mono font-bold text-sm md:text-lg">4. Транспортный</span>
                         <i class="fa-solid fa-truck-fast opacity-50 group-hover:opacity-100 hidden md:block"></i>
                     </button>
-                    <button onclick="setOsiLayer(5)" id="osi-btn-5" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                    <button type="button" data-osi-layer="5" id="osi-btn-5" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
                         <span class="font-mono font-bold text-sm md:text-lg">5. Сеансовый</span>
                         <i class="fa-solid fa-handshake opacity-50 group-hover:opacity-100 hidden md:block"></i>
                     </button>
-                    <button onclick="setOsiLayer(6)" id="osi-btn-6" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
-                        <span class="font-mono font-bold text-sm md:text-lg">6. Представительский</span>
-                        <i class="fa-solid fa-language opacity-50 group-hover:opacity-100 hidden md:block"></i>
+                    <button type="button" data-osi-layer="6" id="osi-btn-6"
+                    class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all
+                            flex justify-between items-center group min-w-[140px] md:min-w-0 overflow-hidden">
+                    <span class="font-mono font-bold text-sm md:text-lg leading-tight whitespace-normal break-words">
+                        6. Представительский
+                    </span>
+                    <i class="fa-solid fa-language opacity-50 group-hover:opacity-100 hidden md:block"></i>
                     </button>
-                    <button onclick="setOsiLayer(7)" id="osi-btn-7" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
+                    <button type="button" data-osi-layer="7" id="osi-btn-7" class="osi-btn p-2 md:p-3 border border-white/20 rounded hover:bg-white/10 text-left transition-all flex justify-between items-center group min-w-[140px] md:min-w-0">
                         <span class="font-mono font-bold text-sm md:text-lg">7. Прикладной</span>
                         <i class="fa-brands fa-chrome opacity-50 group-hover:opacity-100 hidden md:block"></i>
                     </button>
@@ -356,6 +409,7 @@
                         <div class="grid grid-cols-2 gap-2 text-xs md:text-sm">
                             <div class="bg-black/30 p-2 rounded"><span class="text-blue-400 font-bold">СОРМ-1:</span> Звонки</div>
                             <div class="bg-black/30 p-2 rounded"><span class="text-blue-400 font-bold">СОРМ-2:</span> Интернет</div>
+                            <div class="bg-black/30 p-2 rounded"><span class="text-blue-400 font-bold">СОРМ-3:</span> Хранение, агрегация, анализ (BigData)</div>
                         </div>
                     </div>
 
@@ -384,8 +438,219 @@
         </div>
     </section>
 
-    <!-- SLIDE 4: Digital Hygiene & Conclusion -->
-    <section class="slide bg-cyber-dark no-scrollbar" id="slide-4">
+<!-- SLIDE 4: Malware + TLS MITM + MTProto (mobile-first infographic) -->
+<section class="slide bg-cyber-dark no-scrollbar" id="slide-4">
+<div class="w-full max-w-6xl pt-8 pb-16">
+    <h2 class="text-2xl md:text-4xl font-bold mb-6 text-cyber-alert border-l-4 border-cyber-alert pl-4">
+      Malware: HTTPS → MTProto → текст сообщения
+    </h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- LEFT: minimal steps -->
+      <div class="lg:col-span-4 space-y-3">
+        <div class="bg-cyber-gray p-5 rounded-xl border border-white/10">
+          <h3 class="font-bold text-white text-lg mb-3">Сценарий (в 4 шага)</h3>
+          <div class="space-y-2 text-sm text-gray-300">
+            <div class="flex items-center gap-2">
+              <span class="tag">1</span>
+              <span>Подмена доверия к SSL → TLS-перехват</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="tag">2</span>
+              <span>HTTPS раскрыт, но внутри ещё MTProto-шифротекст</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="tag">3</span>
+              <span>Добыча MTProto ключа/сессии на устройстве</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="tag">4</span>
+              <span>Расшифровка MTProto payload → читаемый текст</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-black/30 p-5 rounded-xl border border-white/10">
+          <div class="flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-cyber-alert mt-0.5"></i>
+            <p class="text-sm text-gray-300 leading-relaxed">
+              Важно: это про <strong>контроль устройства</strong>. Тогда “вскрытие” становится вопросом доверия/ключей на клиенте,
+              а не “магии взлома шифрования в интернете”.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: infographic (mobile-first vertical flow) -->
+      <div class="lg:col-span-8 bg-black/50 border border-white/10 rounded-xl p-5 md:p-6 relative overflow-hidden">
+        <!-- glow -->
+        <div class="absolute inset-0 opacity-15 pointer-events-none">
+          <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-cyber-purple blur-3xl"></div>
+          <div class="absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-cyber-blue blur-3xl"></div>
+        </div>
+
+        <div class="relative z-10 max-w-2xl mx-auto lg:max-w-none space-y-3">
+          <!-- Malware boundary -->
+          <div class="border-2 border-dashed border-cyber-alert/45 rounded-xl bg-cyber-alert/5 p-3 md:p-4">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="w-10 h-10 rounded-full bg-blue-500/25 border border-blue-400/30 flex items-center justify-center shrink-0">
+                  <i class="fa-brands fa-telegram text-xl text-blue-300"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="text-white font-bold text-sm md:text-base break-words">Telegram client</div>
+                  <div class="text-[11px] text-gray-400 font-mono break-words">устройство заражено</div>
+                </div>
+              </div>
+
+              <div class="text-[10px] font-mono text-cyber-alert animate-pulse shrink-0">MALWARE ACTIVE</div>
+
+              <div class="flex items-center gap-2 min-w-0">
+                <div class="min-w-0 text-right">
+                  <div class="text-white font-bold text-sm md:text-base break-words">Telegram servers</div>
+                  <div class="text-[11px] text-gray-400 font-mono break-words">интернет</div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-gray-700/50 border border-white/10 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-server text-lg text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 1 -->
+            <div class="bg-black/35 border border-cyber-alert/30 rounded-xl p-3 md:p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-11 h-11 rounded-lg bg-cyber-alert flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(255,107,107,0.35)]">
+                  <i class="fa-solid fa-certificate text-black text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="tag">STEP 1</span>
+                    <span class="text-white font-bold text-sm md:text-base break-words">TLS-перехват (подмена доверия)</span>
+                  </div>
+                  <div class="text-xs text-gray-300 mt-1 break-words">
+                    HTTPS трафик становится видимым вредоносу.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Arrow -->
+            <div class="flex items-center gap-3 py-2">
+              <div class="w-10 shrink-0 flex justify-center text-gray-500">
+                <i class="fa-solid fa-arrow-down"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flowline"></div>
+              </div>
+            </div>
+
+            <!-- Step 2: Matryoshka (HTTPS -> MTProto ciphertext) -->
+            <div class="bg-black/35 border border-white/10 rounded-xl p-3 md:p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-11 h-11 rounded-lg bg-cyber-blue/20 border border-cyber-blue/30 flex items-center justify-center shrink-0">
+                  <i class="fa-solid fa-layer-group text-cyber-blue text-xl"></i>
+                </div>
+                <div class="min-w-0 w-full">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="tag">STEP 2</span>
+                    <span class="text-white font-bold text-sm md:text-base break-words">Внутри HTTPS ещё MTProto</span>
+                  </div>
+
+                  <div class="mt-2 space-y-2">
+                    <!-- Outer (HTTPS decrypted) -->
+                    <div class="rounded-lg border border-white/10 bg-black/30 p-3">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="tag"><i class="fa-solid fa-lock-open"></i> HTTPS decrypted</span>
+                        <span class="text-[10px] font-mono text-gray-400">видно “контейнер”</span>
+                      </div>
+
+                      <!-- Inner (MTProto ciphertext) -->
+                      <div class="mt-2 rounded-lg border border-white/10 bg-black/40 p-3">
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="tag"><i class="fa-solid fa-lock"></i> MTProto ciphertext</span>
+                          <span class="text-[10px] font-mono text-gray-400">A9F1…7C2B…</span>
+                        </div>
+                        <div class="text-xs text-gray-300 mt-2 break-words">
+                          Сообщение всё ещё не читается: нужен MTProto ключ/сессия.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Arrow -->
+            <div class="flex items-center gap-3 py-2">
+              <div class="w-10 shrink-0 flex justify-center text-gray-500">
+                <i class="fa-solid fa-arrow-down"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flowline"></div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="bg-black/35 border border-cyber-alert/30 rounded-xl p-3 md:p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-11 h-11 rounded-lg bg-cyber-alert flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(255,107,107,0.35)]">
+                  <i class="fa-solid fa-key text-black text-xl"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="tag">STEP 3</span>
+                    <span class="text-white font-bold text-sm md:text-base break-words">Добыча MTProto AuthKey/сессии</span>
+                  </div>
+                  <div class="text-xs text-gray-300 mt-1 break-words">
+                    Ключ/сессия берутся на клиенте (там же, где ими пользуется приложение).
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Arrow -->
+            <div class="flex items-center gap-3 py-2">
+              <div class="w-10 shrink-0 flex justify-center text-gray-500">
+                <i class="fa-solid fa-arrow-down"></i>
+              </div>
+              <div class="flex-1">
+                <div class="flowline"></div>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="bg-black/35 border border-white/10 rounded-xl p-3 md:p-4">
+              <div class="flex items-start gap-3">
+                <div class="w-11 h-11 rounded-lg bg-cyber-neon flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(34,211,238,0.28)]">
+                  <i class="fa-solid fa-unlock-keyhole text-black text-xl"></i>
+                </div>
+                <div class="min-w-0 w-full">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="tag">STEP 4</span>
+                    <span class="text-white font-bold text-sm md:text-base break-words">MTProto decrypt → payload</span>
+                  </div>
+
+                  <div class="mt-2 rounded-lg border border-white/10 bg-black/40 p-3">
+                    <div class="text-[10px] text-gray-500 uppercase tracking-widest">PLAINTEXT</div>
+                    <div class="font-mono text-sm md:text-base text-cyber-neon break-words">"Привет!"</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /malware boundary -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+    <!-- SLIDE 5: Digital Hygiene & Conclusion -->
+    <section class="slide bg-cyber-dark no-scrollbar" id="slide-5">
         <div class="w-full max-w-5xl pt-8 pb-16">
             <h2 class="text-2xl md:text-4xl font-bold mb-6 text-cyber-neon border-l-4 border-cyber-neon pl-4">Цифровая Гигиена</h2>
             
@@ -422,7 +687,7 @@
                     <p class="text-gray-400 mb-6 md:mb-8 text-sm md:text-base">
                         Безопасность — это процесс.
                     </p>
-                    <button onclick="currentSlide = 0; updateSlides();" class="px-5 py-2 md:px-6 md:py-2 bg-cyber-neon text-cyber-black font-bold rounded hover:bg-white transition-colors text-sm md:text-base">
+                    <button type="button" data-go-home class="px-5 py-2 md:px-6 md:py-2 bg-cyber-neon text-cyber-black font-bold rounded hover:bg-white transition-colors text-sm md:text-base">
                         В начало
                     </button>
                 </div>
@@ -432,250 +697,355 @@
 
     <!-- JavaScript Logic -->
     <script>
-        // --- State Management ---
-        let currentSlide = 0;
-        const slides = document.querySelectorAll('.slide');
-        const totalSlides = slides.length;
-        const progressBar = document.getElementById('progress-bar');
-        const numIndicator = document.getElementById('current-slide-num');
+                (() => {
+            'use strict';
 
-        // --- Navigation Logic ---
-        function updateSlides() {
-            slides.forEach((slide, index) => {
-                slide.classList.remove('active', 'prev', 'next');
-                if (index === currentSlide) {
-                    slide.classList.add('active');
-                } else if (index < currentSlide) {
-                    slide.classList.add('prev');
-                } else {
-                    slide.classList.add('next');
+            // Prevent browser from restoring scroll position (reload / BFCache)
+            if ('scrollRestoration' in history) {
+                history.scrollRestoration = 'manual';
+            }
+
+            // --- State Management ---
+            let currentSlide = 0;
+            const slides = Array.from(document.querySelectorAll('section.slide'));
+            const totalSlides = slides.length;
+
+            const progressBar = document.getElementById('progress-bar');
+            const currentNumIndicator = document.getElementById('current-slide-num');
+            const totalNumIndicator = document.getElementById('total-slide-num');
+
+            function updateTotalIndicator() {
+                if (!totalNumIndicator) return;
+                totalNumIndicator.innerText = String(totalSlides).padStart(2, '0');
+            }
+
+            function scrollPageToTop() {
+                // Some mobile browsers still keep a document scroll offset even with overflow:hidden
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            }
+
+            function resetScrollInside(el) {
+                if (!el) return;
+                el.scrollTop = 0;
+                el.scrollLeft = 0;
+                el.querySelectorAll('.overflow-y-auto, .osi-nav-container').forEach((node) => {
+                    node.scrollTop = 0;
+                    node.scrollLeft = 0;
+                });
+            }
+
+            // --- Navigation Logic ---
+            function updateSlides({ resetActiveScroll = false } = {}) {
+                slides.forEach((slide, index) => {
+                    slide.classList.remove('active', 'prev', 'next');
+                    if (index === currentSlide) {
+                        slide.classList.add('active');
+                    } else if (index < currentSlide) {
+                        slide.classList.add('prev');
+                    } else {
+                        slide.classList.add('next');
+                    }
+                });
+
+                // Update UI
+                const denom = Math.max(1, totalSlides - 1);
+                const progress = (currentSlide / denom) * 100;
+                if (progressBar) progressBar.style.width = `${progress}%`;
+
+                if (currentNumIndicator) {
+                    currentNumIndicator.innerText = String(currentSlide + 1).padStart(2, '0');
+                }
+
+                if (resetActiveScroll) {
+                    resetScrollInside(slides[currentSlide]);
+                }
+            }
+
+            function goToSlide(index, { resetActiveScroll = true } = {}) {
+                const nextIndex = Math.min(Math.max(index, 0), totalSlides - 1);
+                currentSlide = nextIndex;
+                updateSlides({ resetActiveScroll });
+
+                // Force browser to actually be at the top (fixes "black screen" after refresh on some mobiles)
+                requestAnimationFrame(() => scrollPageToTop());
+            }
+
+            function changeSlide(direction) {
+                goToSlide(currentSlide + direction, { resetActiveScroll: true });
+            }
+
+            // Buttons (no inline onclick)
+            document.querySelectorAll('[data-slide-dir]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const dir = parseInt(btn.dataset.slideDir || '0', 10);
+                    changeSlide(dir);
+                });
+            });
+
+            const homeBtn = document.querySelector('[data-go-home]');
+            if (homeBtn) {
+                homeBtn.addEventListener('click', () => goToSlide(0, { resetActiveScroll: true }));
+            }
+
+            // Keyboard Controls
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.code === 'Space') {
+                    changeSlide(1);
+                } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                    changeSlide(-1);
                 }
             });
-            
-            // Update UI
-            const progress = ((currentSlide) / (totalSlides - 1)) * 100;
-            progressBar.style.width = `${progress}%`;
-            numIndicator.innerText = String(currentSlide).padStart(2, '0');
-        }
 
-        function changeSlide(direction) {
-            const newIndex = currentSlide + direction;
-            if (newIndex >= 0 && newIndex < totalSlides) {
-                currentSlide = newIndex;
-                updateSlides();
-            }
-        }
+            // --- Touch/Swipe Support ---
+            let touchStartY = 0;
+            let touchEndY = 0;
+            const minSwipeDistance = 50;
 
-        // Keyboard Controls
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.code === 'Space') {
-                changeSlide(1);
-            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-                changeSlide(-1);
-            }
-        });
+            document.addEventListener('touchstart', (e) => {
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
 
-        // --- Touch/Swipe Support ---
-        let touchStartY = 0;
-        let touchEndY = 0;
-        const minSwipeDistance = 50;
+            document.addEventListener('touchend', (e) => {
+                touchEndY = e.changedTouches[0].screenY;
+                handleSwipe(e.target);
+            }, { passive: true });
 
-        document.addEventListener('touchstart', (e) => {
-            touchStartY = e.changedTouches[0].screenY;
-        }, {passive: true});
+            function findScrollableParent(target) {
+                // Priority: inner scroll areas, then active slide itself
+                const inner = target.closest('.overflow-y-auto');
+                if (inner) return inner;
 
-        document.addEventListener('touchend', (e) => {
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipe(e.target);
-        }, {passive: true});
+                const active = slides[currentSlide];
+                if (active && active.contains(target)) return active;
 
-        function handleSwipe(target) {
-            const distance = touchStartY - touchEndY;
-            
-            // Check if user is scrolling inside a scrollable element
-            let scrollableParent = target.closest('.overflow-y-auto');
-            if (scrollableParent) {
-                // If scrollable and not at boundaries, don't change slide
-                const isAtTop = scrollableParent.scrollTop === 0;
-                const isAtBottom = Math.abs(scrollableParent.scrollHeight - scrollableParent.scrollTop - scrollableParent.clientHeight) < 1;
-
-                if (distance > 0 && !isAtBottom) return; // Swiping up, but content can scroll down
-                if (distance < 0 && !isAtTop) return;   // Swiping down, but content can scroll up
+                return null;
             }
 
-            if (Math.abs(distance) > minSwipeDistance) {
+            function handleSwipe(target) {
+                const distance = touchStartY - touchEndY;
+                if (Math.abs(distance) <= minSwipeDistance) return;
+
+                const scrollable = findScrollableParent(target);
+                if (scrollable) {
+                    const canScroll = scrollable.scrollHeight > scrollable.clientHeight + 2;
+                    if (canScroll) {
+                        const isAtTop = scrollable.scrollTop <= 0;
+                        const isAtBottom = scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
+
+                        if (distance > 0 && !isAtBottom) return; // swipe up, but can scroll down
+                        if (distance < 0 && !isAtTop) return;    // swipe down, but can scroll up
+                    }
+                }
+
                 if (distance > 0) {
                     changeSlide(1); // Swipe Up -> Next
                 } else {
                     changeSlide(-1); // Swipe Down -> Prev
                 }
             }
-        }
 
-        // Initialize First Slide
-        updateSlides();
-
-
-        // --- OSI Interactive Model Logic ---
-        const osiData = {
-            1: {
-                title: "Физический",
-                desc: "Среда передачи (Биты).",
-                tech: "Витая пара, Оптоволокно, Wi-Fi",
-                pdu: "Бит (Bit)",
-                hw: "Кабель, Hub",
-                analogy: "Дорога и грузовик. Если дорога разбита, груз не поедет.",
-                threats: ["Обрыв кабеля", "Глушилки", "ЭМИ"],
-                threat_analogy: "Взрыв моста или угон грузовика."
-            },
-            2: {
-                title: "Канальный",
-                desc: "Адресация в одной сети.",
-                tech: "Ethernet, MAC",
-                pdu: "Кадр (Frame)",
-                hw: "Switch (Коммутатор)",
-                analogy: "Сортировка внутри офиса по номерам кабинетов.",
-                threats: ["MAC Spoofing", "ARP Poisoning"],
-                threat_analogy: "Мошенник с бейджем вашего коллеги."
-            },
-            3: {
-                title: "Сетевой",
-                desc: "Маршрутизация по миру.",
-                tech: "IP, ICMP, IPsec",
-                pdu: "Пакет",
-                hw: "Роутер",
-                analogy: "Глобальная почта. Индекс и адрес на конверте.",
-                threats: ["IP Spoofing", "MitM"],
-                threat_analogy: "Подмена дорожных знаков, грузовик уехал не туда."
-            },
-            4: {
-                title: "Транспортный",
-                desc: "Надежность и порты.",
-                tech: "TCP, UDP",
-                pdu: "Сегмент",
-                hw: "Firewall",
-                analogy: "Тип письма: заказное (TCP) или открытка (UDP). Порт - имя получателя.",
-                threats: ["Сканирование портов", "DDoS"],
-                threat_analogy: "Почтовый ящик забили спамом."
-            },
-            5: {
-                title: "Сеансовый",
-                desc: "Диалог устройств.",
-                tech: "Sockets, RPC",
-                pdu: "Данные",
-                hw: "Шлюз",
-                analogy: "Секретарь соединяет звонок: 'Алло, вы на связи?'.",
-                threats: ["Session Hijacking"],
-                threat_analogy: "Кто-то перехватил трубку параллельного телефона."
-            },
-            6: {
-                title: "Представления",
-                desc: "Формат и шифрование.",
-                tech: "SSL/TLS, JPEG",
-                pdu: "Данные",
-                hw: "Шлюз",
-                analogy: "Переводчик и упаковка в непрозрачный конверт.",
-                threats: ["SSL Stripping"],
-                threat_analogy: "Письмо вскрыли паром и прочитали."
-            },
-            7: {
-                title: "Прикладной",
-                desc: "Интерфейс.",
-                tech: "HTTP, DNS",
-                pdu: "Данные",
-                hw: "Браузер",
-                analogy: "Смысл письма. То, что видит пользователь.",
-                threats: ["Фишинг", "SQL-инъекции"],
-                threat_analogy: "В письме просьба срочно перевести деньги мошеннику."
-            }
-        };
-
-        function setOsiLayer(layerNum) {
-            // UI Update
-            document.querySelectorAll('.osi-btn').forEach(btn => {
-                btn.classList.remove('bg-cyber-neon/20', 'border-cyber-neon');
-                btn.classList.add('border-white/20');
-            });
-            const activeBtn = document.getElementById(`osi-btn-${layerNum}`);
-            activeBtn.classList.remove('border-white/20');
-            activeBtn.classList.add('bg-cyber-neon/20', 'border-cyber-neon');
-
-            // Content Update
-            const data = osiData[layerNum];
-            document.getElementById('osi-layer-num').innerText = `L${layerNum}`;
-            document.getElementById('osi-title').innerText = data.title;
-            document.getElementById('osi-desc').innerText = data.desc;
-            document.getElementById('osi-tech').innerText = data.tech;
-            
-            document.getElementById('osi-analogy').innerText = data.analogy;
-            document.getElementById('osi-threat-analogy').innerText = data.threat_analogy;
-            
-            // Threats Update
-            const threatsList = document.getElementById('osi-threats');
-            threatsList.innerHTML = '';
-            data.threats.forEach(threat => {
-                const li = document.createElement('li');
-                li.innerText = threat;
-                threatsList.appendChild(li);
-            });
-        }
-        
-        // Init OSI Layer 1
-        setOsiLayer(7);
-
-
-        // --- Chart.js Initialization ---
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('censorshipChart').getContext('2d');
-            
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['00:00', '00:10', '00:20', '00:30', '00:40', '00:50', '01:00'],
-                    datasets: [
-                        {
-                            label: 'Обычный',
-                            data: [100, 98, 100, 102, 99, 100, 101],
-                            borderColor: '#888888',
-                            borderDash: [5, 5],
-                            tension: 0.4,
-                            pointRadius: 0
-                        },
-                        {
-                            label: 'Замедление',
-                            data: [100, 95, 45, 30, 25, 30, 28], // Drop representing DPI intervention
-                            borderColor: '#ff6b6b',
-                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                            fill: true,
-                            tension: 0.4
-                        }
-                    ]
+            // --- OSI Interactive Model Logic ---
+            const osiData = {
+                1: {
+                    title: "Физический",
+                    desc: "Среда передачи (Биты).",
+                    tech: "Витая пара, Оптоволокно, Wi-Fi",
+                    pdu: "Бит (Bit)",
+                    hw: "Кабель, Hub",
+                    analogy: "Дорога и грузовик. Если дорога разбита, груз не поедет.",
+                    threats: ["Обрыв кабеля", "Глушилки", "ЭМИ"],
+                    threat_analogy: "Взрыв моста или угон грузовика."
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#e0e0e0', font: {size: 10} } },
-                        tooltip: { mode: 'index', intersect: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#bbbbbb', font: {size: 9}, callback: function(value) { return value + ' Mb'; } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#bbbbbb', font: {size: 9} }
-                        }
-                    },
-                    animation: {
-                        duration: 2000,
-                        easing: 'easeOutQuart'
-                    }
+                2: {
+                    title: "Канальный",
+                    desc: "Адресация в одной сети.",
+                    tech: "Ethernet, MAC",
+                    pdu: "Кадр (Frame)",
+                    hw: "Switch (Коммутатор)",
+                    analogy: "Сортировка внутри офиса по номерам кабинетов.",
+                    threats: ["MAC Spoofing", "ARP Poisoning"],
+                    threat_analogy: "Мошенник с бейджем вашего коллеги."
+                },
+                3: {
+                    title: "Сетевой",
+                    desc: "Маршрутизация по миру.",
+                    tech: "IP, ICMP, IPsec",
+                    pdu: "Пакет",
+                    hw: "Роутер",
+                    analogy: "Глобальная почта. Индекс и адрес на конверте.",
+                    threats: ["IP Spoofing", "MitM"],
+                    threat_analogy: "Подмена дорожных знаков, грузовик уехал не туда."
+                },
+                4: {
+                    title: "Транспортный",
+                    desc: "Надежность и порты.",
+                    tech: "TCP, UDP",
+                    pdu: "Сегмент",
+                    hw: "Firewall",
+                    analogy: "Тип письма: заказное (TCP) или открытка (UDP). Порт - имя получателя.",
+                    threats: ["Сканирование портов", "DDoS"],
+                    threat_analogy: "Почтовый ящик забили спамом."
+                },
+                5: {
+                    title: "Сеансовый",
+                    desc: "Диалог устройств.",
+                    tech: "Sockets, RPC",
+                    pdu: "Данные",
+                    hw: "Шлюз",
+                    analogy: "Секретарь соединяет звонок: 'Алло, вы на связи?'.",
+                    threats: ["Session Hijacking"],
+                    threat_analogy: "Кто-то перехватил трубку параллельного телефона."
+                },
+                6: {
+                    title: "Представительский",
+                    desc: "Формат и шифрование.",
+                    tech: "SSL/TLS, JPEG",
+                    pdu: "Данные",
+                    hw: "Шлюз",
+                    analogy: "Переводчик и упаковка в непрозрачный конверт.",
+                    threats: ["SSL Stripping"],
+                    threat_analogy: "Письмо вскрыли паром и прочитали."
+                },
+                7: {
+                    title: "Прикладной",
+                    desc: "Интерфейс.",
+                    tech: "HTTP, DNS",
+                    pdu: "Данные",
+                    hw: "Браузер",
+                    analogy: "Смысл письма. То, что видит пользователь.",
+                    threats: ["Фишинг", "SQL-инъекции"],
+                    threat_analogy: "В письме просьба срочно перевести деньги мошеннику."
                 }
+            };
+
+            function setOsiLayer(layerNum) {
+                // UI Update
+                document.querySelectorAll('.osi-btn').forEach((btn) => {
+                    btn.classList.remove('bg-cyber-neon/20', 'border-cyber-neon');
+                    btn.classList.add('border-white/20');
+                });
+
+                const activeBtn = document.getElementById(`osi-btn-${layerNum}`);
+                if (activeBtn) {
+                    activeBtn.classList.remove('border-white/20');
+                    activeBtn.classList.add('bg-cyber-neon/20', 'border-cyber-neon');
+                }
+
+                const data = osiData[layerNum];
+                if (!data) return;
+
+                document.getElementById('osi-layer-num').innerText = `L${layerNum}`;
+                document.getElementById('osi-title').innerText = data.title;
+                document.getElementById('osi-desc').innerText = data.desc;
+                document.getElementById('osi-tech').innerText = data.tech;
+
+                document.getElementById('osi-analogy').innerText = data.analogy;
+                document.getElementById('osi-threat-analogy').innerText = data.threat_analogy;
+
+                const threatsList = document.getElementById('osi-threats');
+                threatsList.innerHTML = '';
+                data.threats.forEach((threat) => {
+                    const li = document.createElement('li');
+                    li.innerText = threat;
+                    threatsList.appendChild(li);
+                });
+            }
+
+            document.querySelectorAll('[data-osi-layer]').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    const layer = parseInt(btn.dataset.osiLayer || '1', 10);
+                    setOsiLayer(layer);
+                });
             });
-        });
+
+            // --- Chart.js Initialization ---
+            let censorshipChart = null;
+            function initCensorshipChart() {
+                const canvas = document.getElementById('censorshipChart');
+                if (!canvas || !window.Chart) return;
+
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+
+                if (censorshipChart) {
+                    censorshipChart.destroy();
+                    censorshipChart = null;
+                }
+
+                censorshipChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['00:00', '00:10', '00:20', '00:30', '00:40', '00:50', '01:00'],
+                        datasets: [
+                            {
+                                label: 'Обычный',
+                                data: [100, 98, 100, 102, 99, 100, 101],
+                                borderColor: '#888888',
+                                borderDash: [5, 5],
+                                tension: 0.4,
+                                pointRadius: 0
+                            },
+                            {
+                                label: 'Замедление',
+                                data: [100, 95, 45, 30, 25, 30, 28],
+                                borderColor: '#ff6b6b',
+                                backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                                fill: true,
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#e0e0e0', font: { size: 10 } } },
+                            tooltip: { mode: 'index', intersect: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                                ticks: { color: '#bbbbbb', font: { size: 9 }, callback: (value) => value + ' Mb' }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#bbbbbb', font: { size: 9 } }
+                            }
+                        },
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeOutQuart'
+                        }
+                    }
+                });
+            }
+
+            // --- Hard reset on reload/back-forward (start at slide 1 always) ---
+            function hardResetToStart() {
+                updateTotalIndicator();
+                slides.forEach((s) => resetScrollInside(s));
+                goToSlide(0, { resetActiveScroll: true });
+                setOsiLayer(1);
+                initCensorshipChart();
+
+                // Extra tick for mobile browsers that ignore scrollTo during initial paint
+                setTimeout(scrollPageToTop, 0);
+                setTimeout(scrollPageToTop, 50);
+            }
+
+            // First run immediately (script is at the end of body)
+            hardResetToStart();
+
+            // Also handle BFCache restores
+            window.addEventListener('pageshow', () => {
+                hardResetToStart();
+            });
+
+        })();
+    </script>
     </script>
 </body>
 </html>
